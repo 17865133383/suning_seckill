@@ -95,7 +95,7 @@ class ChromeDrive:
         chrome_options.add_argument(f'--user-agent={choice(get_useragent_data())}')
         return chrome_options
 
-    def login(self, login_url: str="https://www.taobao.com"):
+    def login(self, login_url: str="https://www.suning.com"):
         if login_url:
             self.driver = self.start_driver()
         else:
@@ -106,12 +106,12 @@ class ChromeDrive:
         while True:
             self.driver.get(login_url)
             try:
-                if self.driver.find_element_by_link_text("亲，请登录"):
+                if self.driver.find_element_by_link_text("请登录"):
                     print("没登录，开始点击登录按钮...")
-                    self.driver.find_element_by_link_text("亲，请登录").click()
+                    self.driver.find_element_by_link_text("请登录").click()
                     print("请在30s内扫码登陆!!")
-                    sleep(120)
-                    if self.driver.find_element_by_xpath('//*[@id="J_SiteNavMytaobao"]/div[1]/a/span'):
+                    sleep(30)
+                    if self.driver.find_element_by_xpath('//*[@id="usernameHtml02"]'):
                         print("登陆成功")
                         break
                     else:
@@ -127,9 +127,13 @@ class ChromeDrive:
         while True:
             current_time = datetime.now()
             if (self.seckill_time_obj - current_time).seconds > 180:
-                self.driver.get("https://cart.taobao.com/cart.htm")
+                self.driver.get("https://shopping.suning.com/cart.do")
                 print("每十秒刷新一次界面，防止登录超时...")
                 sleep(10)
+
+                #测试过程中让程序跳出循环直接执行,正常情况下不会出现
+                break
+
             else:
                 self.get_cookie()
                 print("抢购时间点将近，停止自动刷新，准备进入抢购阶段...")
@@ -138,19 +142,26 @@ class ChromeDrive:
 
     def sec_kill(self):
         self.keep_wait()
-        self.driver.get("https://cart.taobao.com/cart.htm")
+        self.driver.get("https://shopping.suning.com/cart.do")
         sleep(1)
 
-        if self.driver.find_element_by_id("J_SelectAll1"):
-            self.driver.find_element_by_id("J_SelectAll1").click()
+        if self.driver.find_element_by_id("chooseAllCheckFrame1"):
+            self.driver.find_element_by_id("chooseAllCheckFrame1").click()
+
             print("已经选中全部商品！！！")
 
+        # 抢购次数，抢购是否成功
         submit_succ = False
         retry_count = 0
 
         while True:
             now = datetime.now()
-            if now >= self.seckill_time_obj:
+
+            #测试条件设定，方便进行测试，不等待指定的时间
+            test_time = datetime.min
+            if now >= test_time:
+
+            #if now >= self.seckill_time_obj:
                 print(f"开始抢购, 尝试次数： {str(retry_count)}")
                 if submit_succ:
                     print("订单已经提交成功，无需继续抢购...")
@@ -163,8 +174,10 @@ class ChromeDrive:
 
                 try:
 
-                    if self.driver.find_element_by_id("J_Go"):
-                        self.driver.find_element_by_id("J_Go").click()
+                    if self.driver.find_element_by_class_name("checkout cart-btn"):
+                        self.driver.find_element_by_id("checkout cart-btn").click()
+                        #苏宁本身存在的问题，每个购物网站，进入购物车可能出现不同的情况，有的默认勾选，有的默认不勾选。
+                        self.driver.find_element_by_id("checkout cart-btn").click()
                         print("已经点击结算按钮...")
                         click_submit_times = 0
                         while True:
