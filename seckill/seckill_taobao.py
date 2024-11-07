@@ -145,10 +145,26 @@ class ChromeDrive:
         self.driver.get("https://shopping.suning.com/cart.do")
         sleep(1)
 
+        '''
+        #系统页面更新不及时，点击结算按钮，可能导致无法正常结算
         if self.driver.find_element_by_id("chooseAllCheckFrame1"):
             self.driver.find_element_by_id("chooseAllCheckFrame1").click()
 
             print("已经选中全部商品！！！")
+        '''
+
+        '''
+        #勾选全部商品的另一种做法，加入了判断的流程
+        all_select = self.driver.find_element_by_id("chooseAllCheckFrame2")
+        if all_select:
+
+            # 判断全选框是否处于勾选状态,未勾选进行勾选，勾选了则不行操作。
+            if all_select.get_attribute("aria-checked") == "false":
+                all_select.click()
+        '''
+
+
+
 
         # 抢购次数，抢购是否成功
         submit_succ = False
@@ -173,11 +189,17 @@ class ChromeDrive:
                 retry_count += 1
 
                 try:
+                    # 勾选全部商品的另一种做法，加入了判断的流程
+                    all_select = self.driver.find_element_by_id("chooseAllCheckFrame2")
+                    if all_select:
 
-                    if self.driver.find_element_by_class_name("checkout cart-btn"):
-                        self.driver.find_element_by_id("checkout cart-btn").click()
-                        #苏宁本身存在的问题，每个购物网站，进入购物车可能出现不同的情况，有的默认勾选，有的默认不勾选。
-                        self.driver.find_element_by_id("checkout cart-btn").click()
+                        # 判断全选框是否处于勾选状态,未勾选进行勾选，勾选了则不行操作。
+                        if all_select.get_attribute("aria-checked") == "false":
+                            all_select.click()
+
+
+                    if self.driver.find_element_by_link_text("去结算"):
+                        self.driver.find_element_by_link_text("去结算").click()
                         print("已经点击结算按钮...")
                         click_submit_times = 0
                         while True:
@@ -196,14 +218,22 @@ class ChromeDrive:
                                 sleep(0.1)
                 except Exception as e:
                     print(e)
-                    print("临时写的脚本, 可能出了点问题!!!")
+                    print("结算过程中出现问题")
 
             sleep(0.1)
+
+
+        '''
+        调用支付模块，实现自动支付 
         if submit_succ:
             if self.password:
                 self.pay()
+                
+        '''
 
 
+    '''
+    #暂时采用手动支付的方式，下单后手机查看下单商品是否正确
     def pay(self):
         try:
             element = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'sixDigitPassword')))
@@ -215,6 +245,7 @@ class ChromeDrive:
         finally:
             sleep(60)
             self.driver.quit()
+    '''
 
 
     def get_cookie(self):
