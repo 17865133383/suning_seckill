@@ -43,8 +43,8 @@ def default_chrome_path():
 
 class ChromeDrive:
 
-    def __init__(self, chrome_path='D:/pycharm/taobao_seckill/chromedriver-win64/chromedriver.exe', seckill_time=None, password=None):
-    #def __init__(self, chrome_path='D:/Chrome/Chrome_123.0.6312.59_x64.Green/App/chrome.exe', seckill_time=None, password=None):
+    #chrome_path的路径指的是chromedriver的路径
+    def __init__(self, chrome_path='../chromedriver-win64/chromedriver.exe', seckill_time=None, password=None):
     #def __init__(self, chrome_path=default_chrome_path(), seckill_time=None, password=None):
         self.chrome_path = chrome_path
         print(self.chrome_path)
@@ -82,8 +82,8 @@ class ChromeDrive:
         chrome_options.assume_untrusted_cert_issuer = True
 
 
-        #指定谷歌浏览器本地的位置或者直接加到本地path
-        chrome_options.binary_location = "D:\\Chrome\\Chrome_123.0.6312.59_x64.Green\\App\\chrome.exe"
+        #指定谷歌浏览器本地的位置或者直接加到本地path，使用相对路径直接指定在本地的位置。
+        chrome_options.binary_location = "..\\Chrome_123.0.6312.59_x64.Green\\App\\chrome.exe"
 
         arguments = ['--no-sandbox', '--disable-impl-side-painting', '--disable-setuid-sandbox', '--disable-seccomp-filter-sandbox',
                      '--disable-breakpad', '--disable-client-side-phishing-detection', '--disable-cast',
